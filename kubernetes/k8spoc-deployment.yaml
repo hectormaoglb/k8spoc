@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8spoc-deployment
+  labels:
+    app: k8spoc
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: k8spoc
+  template:
+    metadata:
+      labels:
+        app: k8spoc
+    spec:
+      containers:
+      - name: k8spoc
+        image: hectormaoglb/k8spoc:1.1.0-SNAPSHOT
+        ports:
+        - containerPort: 8081

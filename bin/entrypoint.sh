@@ -7,4 +7,4 @@ java \
   -Dhazelcast.cluster-config-file=$MICROSERVICE_HOME/cluster.xml \
   -Devergent.HMAC.key=Y9o7GiSU9bb8Uva9RU9n1SR0il0aksmi \
   -Devergent.AES.key=SAvBRCaDUErTuInK \
-  -jar $MICROSERVICE_HOME/getCustomerDetailsService-1.1.0-SNAPSHOT-fat.jar
+  -jar $MICROSERVICE_HOME/getCustomerDetailsService-1.2.0-SNAPSHOT-fat.jar

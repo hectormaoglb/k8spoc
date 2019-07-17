@@ -396,9 +396,83 @@ In both cases the cluster must guarantee the service operation, it replaces the 
   service/wayfaring-hyena-k8spoc   LoadBalancer   10.102.50.42   <pending>     8081:30443/TCP   3h47m
 
   NAME                                     READY   UP-TO-DATE   AVAILABLE   AGE
-  deployment.apps/wayfaring-hyena-k8spoc   3/3     3            3           3h47m
+  deployment.apps/wayfaring-hyena-k8spoc   3/3    https://istio.io/docs/concepts/what-is-istio/  3            3           3h47m
 
   NAME                                                DESIRED   CURRENT   READY   AGE
   replicaset.apps/wayfaring-hyena-k8spoc-657c9c6ccf   3         3         3       3h47m
   ```
   Please check the second pod, the RESTARTS conter is now in 1, kubernetes restart the container and keep 3 replicas running
+
+## Istio (Service Mesh) integration
+
+Istio lets you connect, secure, control, and observe services. [What is Istio?](https://istio.io/docs/concepts/what-is-istio/)
+
+if you want to the complete and official Istio Documentation please visit: [Istio Home Page](https://istio.io/)
+
+Before you start with this tutorial, I recommend you read the Istio basic concepts [Istio Concepts](https://istio.io/docs/concepts/)
+
+### Installing (Integrating) Istio into kubernetes cluster
+
+To install or integrate the Istio service mesh into Kubernetes cluster, we have been followed the next steps
+
+1. Prepare Minikube
+  a. Install kvm hypervisor driver
+      To install kvm we followed this tutorial [Install KVM Ubuntu 18.04](https://www.linuxtechi.com/install-configure-kvm-ubuntu-18-04-server/)
+  b. Start minikube server using kvm2 driver [Minikube for Istio](https://istio.io/docs/setup/kubernetes/platform-setup/minikube/)
+      In my case, I couldn't set memory in 16GB, I used the follow command to launch Minikube
+      ```bash
+         minikube start --memory=8192 --cpus=4 --vm-driver=kvm2
+      ```
+2. Install Istio using Helm [Istio Helm Installation](https://istio.io/docs/setup/kubernetes/install/helm/)
+
+3. Set default namespace with sidecar autoinjection label
+```bash
+  kubectl label namespace default istio-injection=enabled
+```
+This label causes that all pods launched in this namespace will be injected with the envoy proxy (sidecar) to be managed by Istio Control Plane
+
+4. Deploy k8spoc service into Istio Service Mesh
+```bash
+  helm install helm/k8spoc-1.1.0-SNAPSHOT.tgz -n k8spoc
+```
+
+5. Check service into cluster
+```bash
+  kubectl exec -it $(kubectl get pod -l app.kubernetes.io/name=k8spoc -o jsonpath='{.items[0].metadata.name}') -c k8spoc -- curl http://k8spoc:8081
+```
+6. Create a gateway and virtual to consume service outside mesh
+```bash
+kubectl apply -f istio/k8spoc-gateway.yaml
+```
+This gateway causes that the k8spoc services be accessible from outside of the cluster
+7. Check ingress gateway IP
+```bash
+h.gonzalez@CO-IT004729:~/Dev/repos/k8spoc/helm/k8spoc$ kubectl get svc istio-ingressgateway -n istio-system
+NAME                   TYPE           CLUSTER-IP      EXTERNAL-IP     PORT(S)                                                                                                                                      AGE
+istio-ingressgateway   LoadBalancer   10.110.167.41   10.110.167.41   15020:32515/TCP,80:31380/TCP,443:31390/TCP,31400:31400/TCP,15029:31677/TCP,15030:30892/TCP,15031:31180/TCP,15032:31905/TCP,15443:31179/TCP   5h13m
+```
+get the **EXTERNAL_IP**
+8. Check the service
+```bash
+curl -X POST \
+  http://10.110.167.41/ev/getCustomerDetails \
+  -H 'Content-Type: application/json' \
+  -H 'Postman-Token: 08b647e4-2b22-45ac-a1c9-afe1e3cceb27' \
+  -d '{
+	"userToken" : "8543c63333423b0d68af2f50195eb6da6402342b"
+}'
+```
+9. launch new service version
+```bash
+  helm install helm/k8spoc-1.2.1-SNAPSHOT.tgz -n k8spoc-v2
+```
+10. Configure shifting traffic with new version
+```bash
+  kubectl apply -f istio/traffic-shifting.yaml
+```
+update the virtual service causes 50% traffic is routed to k8spoc (v1) and the 50% traffic is routed to the v2 of the service
+
+11. What's next ...
+* Controlling third party request [Istio Egress](https://istio.io/docs/tasks/traffic-management/egress/)
+* Implements service security [Istio Security](https://istio.io/docs/tasks/security/)
+* Service monitoring [Istio Telemetry](https://istio.io/docs/tasks/telemetry/)

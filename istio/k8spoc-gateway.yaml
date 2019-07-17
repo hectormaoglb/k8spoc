@@ -1,0 +1,33 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: k8spoc-gateway
+spec:
+  selector:
+    istio: ingressgateway # use istio default controller
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: k8spoc
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - k8spoc-gateway
+  http:
+  - match:
+    - uri:
+        exact: /ev/getCustomerDetails
+    route:
+    - destination:
+        host: k8spoc
+        port:
+          number: 8081

@@ -1,1 +1,1 @@
-minikube start --vm-driver=none --apiserver-ips 127.0.0.1 --apiserver-name localhost
+minikube start --vm-driver=kvm2 --apiserver-ips 127.0.0.1 --apiserver-name localhost

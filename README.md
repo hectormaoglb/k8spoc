@@ -9,6 +9,7 @@
 [Update Deployment (Scaling pods)](#deploy-update)<br/>
 [Deploy k8spoc service in Kubernetes using Helm package manager](#deploy-helm)<br/>
 [Testing HA](#testing-ha)
+[Istio (Service Mesh) integration](#istio)
 
 
 ## Intro <a name="intro"/>
@@ -403,7 +404,7 @@ In both cases the cluster must guarantee the service operation, it replaces the 
   ```
   Please check the second pod, the RESTARTS conter is now in 1, kubernetes restart the container and keep 3 replicas running
 
-## Istio (Service Mesh) integration
+## Istio (Service Mesh) integration <a name="istio"/>
 
 Istio lets you connect, secure, control, and observe services. [What is Istio?](https://istio.io/docs/concepts/what-is-istio/)
 

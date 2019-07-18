@@ -8,7 +8,7 @@
 [Deploy k8spoc service in Kubernetes using yaml files](#deploy-yaml)<br/>
 [Update Deployment (Scaling pods)](#deploy-update)<br/>
 [Deploy k8spoc service in Kubernetes using Helm package manager](#deploy-helm)<br/>
-[Testing HA](#testing-ha)
+[Testing HA](#testing-ha)<br/>
 [Istio (Service Mesh) integration](#istio)
 
 
